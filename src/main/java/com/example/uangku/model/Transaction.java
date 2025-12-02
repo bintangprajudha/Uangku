@@ -15,7 +15,7 @@ import lombok.Data;
 public abstract class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id; 
 
     private Double amount;
 

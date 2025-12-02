@@ -2,6 +2,7 @@ package com.example.uangku.controller;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,9 +14,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.uangku.model.Expense;
 import com.example.uangku.model.Income;
 import com.example.uangku.service.CategoryService;
+import com.example.uangku.service.Dashboard;
 import com.example.uangku.service.ExpenseService;
 import com.example.uangku.service.IncomeService;
-import com.example.uangku.service.StatisticCalculatorService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,17 +24,25 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DashboardController {
 
-    private final StatisticCalculatorService statisticService;
+    private final Dashboard dashboard;
     private final CategoryService categoryService;
     private final IncomeService incomeService;
     private final ExpenseService expenseService;
 
     @GetMapping("/")
     public String dashboard(Model model) {
-        model.addAttribute("totalIncome", statisticService.getTotalIncome());
-        model.addAttribute("totalExpense", statisticService.getTotalExpense());
-        model.addAttribute("balance", statisticService.getBalance());
+        // Get overall statistics
+        model.addAttribute("totalIncome", dashboard.getTotalIncome());
+        model.addAttribute("totalExpense", dashboard.getTotalExpense());
+        model.addAttribute("balance", dashboard.getBalance());
+
+        // Get current month summary for additional insights
+        Map<String, Object> currentMonthSummary = dashboard.getCurrentMonthSummary();
+        model.addAttribute("currentMonthSummary", currentMonthSummary);
+
+        // Add categories for modal forms
         model.addAttribute("categories", categoryService.getAllCategories());
+
         return "dashboard";
     }
 

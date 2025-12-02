@@ -13,15 +13,37 @@
       rel="stylesheet"
     />
     <style>
-      .sidebar {
-        min-height: 100vh;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      html,
+      body {
+        height: 100%;
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
       }
+
+      .main-container {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .content-wrapper {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+
+      .sidebar {
+        height: 100%;
+        overflow-y: auto;
+      }
+
       .balance-positive {
-        color: #28a745;
+        background-color: #16c47f;
       }
       .balance-negative {
-        color: #dc3545;
+        background-color: #ff2e63;
       }
       .stat-card {
         border: none;
@@ -43,7 +65,7 @@
   </head>
   <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
         <a class="navbar-brand fw-bold" href="#">
           <i class="fas fa-wallet me-2"></i>Uangku
@@ -73,202 +95,192 @@
       </div>
     </nav>
 
-    <div class="container-fluid">
-      <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-3 col-lg-2 p-0">
-          <div class="sidebar text-white p-3">
-            <div class="text-center mb-4">
-              <i class="fas fa-chart-pie fa-3x mb-3"></i>
-              <h5>Dashboard</h5>
-            </div>
-
-            <ul class="nav nav-pills flex-column">
-              <li class="nav-item mb-2">
-                <a href="/" class="nav-link active text-white">
-                  <i class="fas fa-home me-2"></i>Dashboard
-                </a>
-              </li>
-              <li class="nav-item mb-2">
-                <a href="/income" class="nav-link text-white">
-                  <i class="fas fa-plus-circle me-2"></i>Add Income
-                </a>
-              </li>
-              <li class="nav-item mb-2">
-                <a href="/expense" class="nav-link text-white">
-                  <i class="fas fa-minus-circle me-2"></i>Add Expense
-                </a>
-              </li>
-              <li class="nav-item mb-2">
-                <a href="/transactions" class="nav-link text-white">
-                  <i class="fas fa-list me-2"></i>Transactions
-                </a>
-              </li>
-              <li class="nav-item mb-2">
-                <a href="/categories" class="nav-link text-white">
-                  <i class="fas fa-tags me-2"></i>Categories
-                </a>
-              </li>
-              <li class="nav-item mb-2">
-                <a href="/reports" class="nav-link text-white">
-                  <i class="fas fa-chart-bar me-2"></i>Reports
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="col-md-9 col-lg-10">
-          <div class="container-fluid py-4">
-            <!-- Header -->
-            <div class="row mb-4">
-              <div class="col-12">
-                <h1 class="display-4 fw-bold text-primary">
-                  Welcome to Uangku!
-                </h1>
-                <p class="lead text-muted">Manage your finances with ease</p>
-              </div>
-            </div>
-
-            <!-- Flash Messages -->
-            <div
-              th:if="${success}"
-              class="alert alert-success alert-dismissible fade show"
-              role="alert"
-            >
-              <i class="fas fa-check-circle me-2"></i>
-              <span th:text="${success}"></span>
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-              ></button>
-            </div>
-            <div
-              th:if="${error}"
-              class="alert alert-danger alert-dismissible fade show"
-              role="alert"
-            >
-              <i class="fas fa-exclamation-triangle me-2"></i>
-              <span th:text="${error}"></span>
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-              ></button>
-            </div>
-
-            <!-- Statistics Cards -->
-            <div class="row mb-5">
-              <div class="col-md-4 mb-3">
-                <div class="card stat-card bg-success text-white">
-                  <div class="card-body text-center">
-                    <i class="fas fa-arrow-up fa-3x mb-3"></i>
-                    <h5 class="card-title">Total Income</h5>
-                    <h2
-                      class="card-text fw-bold"
-                      th:text="'Rp ' + ${#numbers.formatDecimal(totalIncome, 0, 'COMMA', 0, 'POINT')}"
-                    >
-                      Rp 0
-                    </h2>
-                  </div>
-                </div>
+    <div class="main-container">
+      <div class="container-fluid content-wrapper">
+        <div class="row">
+          <!-- Sidebar -->
+          <div class="col-md-3 col-lg-2 p-0">
+            <div class="sidebar text-black p-3">
+              <div class="text-center mb-4">
+                <i class="fas fa-chart-pie fa-3x mb-3"></i>
+                <h5>Dashboard</h5>
               </div>
 
-              <div class="col-md-4 mb-3">
-                <div class="card stat-card bg-danger text-white">
-                  <div class="card-body text-center">
-                    <i class="fas fa-arrow-down fa-3x mb-3"></i>
-                    <h5 class="card-title">Total Expense</h5>
-                    <h2
-                      class="card-text fw-bold"
-                      th:text="'Rp ' + ${#numbers.formatDecimal(totalExpense, 0, 'COMMA', 0, 'POINT')}"
-                    >
-                      Rp 0
-                    </h2>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-4 mb-3">
-                <div
-                  class="card stat-card"
-                  th:classappend="${balance >= 0} ? 'bg-primary' : 'bg-warning'"
-                  style="color: white"
-                >
-                  <div class="card-body text-center">
-                    <i class="fas fa-balance-scale fa-3x mb-3"></i>
-                    <h5 class="card-title">Balance</h5>
-                    <h2
-                      class="card-text fw-bold"
-                      th:text="'Rp ' + ${#numbers.formatDecimal(balance, 0, 'COMMA', 0, 'POINT')}"
-                    >
-                      Rp 0
-                    </h2>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="row mb-4">
-              <div class="col-12 text-center">
-                <h3 class="mb-4">Quick Actions</h3>
-                <div class="d-flex justify-content-center gap-3 flex-wrap">
-                  <button
-                    class="btn btn-success btn-action"
+              <ul class="nav nav-pills flex-column">
+                <li class="nav-item mb-2">
+                  <a href="/" class="nav-link active text-black">
+                    <i class="fas fa-home me-2"></i>Dashboard
+                  </a>
+                </li>
+                <li class="nav-item mb-2">
+                  <a
+                    href="#"
+                    class="nav-link text-black"
                     data-bs-toggle="modal"
                     data-bs-target="#incomeModal"
                   >
-                    <i class="fas fa-plus me-2"></i>Add Income
-                  </button>
-                  <button
-                    class="btn btn-danger btn-action"
+                    <i class="fas fa-plus-circle me-2"></i>Add Income
+                  </a>
+                </li>
+                <li class="nav-item mb-2">
+                  <a
+                    href="#"
+                    class="nav-link text-black"
                     data-bs-toggle="modal"
                     data-bs-target="#expenseModal"
                   >
-                    <i class="fas fa-minus me-2"></i>Add Expense
-                  </button>
-                  <a href="/transactions" class="btn btn-primary btn-action">
-                    <i class="fas fa-list me-2"></i>View Transactions
+                    <i class="fas fa-minus-circle me-2"></i>Add Expense
                   </a>
-                  <a href="/categories" class="btn btn-secondary btn-action">
+                </li>
+                <li class="nav-item mb-2">
+                  <a href="/transactions" class="nav-link text-black">
+                    <i class="fas fa-list me-2"></i>Transactions
+                  </a>
+                </li>
+                <li class="nav-item mb-2">
+                  <a href="/categories" class="nav-link text-black">
                     <i class="fas fa-tags me-2"></i>Manage Categories
                   </a>
+                </li>
+                <li class="nav-item mb-2">
+                  <a href="/reports" class="nav-link text-black">
+                    <i class="fas fa-chart-bar me-2"></i>Reports
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Main Content -->
+          <div class="col-md-9 col-lg-10">
+            <div class="container-fluid py-4">
+              <!-- Flash Messages -->
+              <div
+                th:if="${success}"
+                class="alert alert-success alert-dismissible fade show"
+                role="alert"
+              >
+                <i class="fas fa-check-circle me-2"></i>
+                <span th:text="${success}"></span>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="alert"
+                ></button>
+              </div>
+              <div
+                th:if="${error}"
+                class="alert alert-danger alert-dismissible fade show"
+                role="alert"
+              >
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <span th:text="${error}"></span>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="alert"
+                ></button>
+              </div>
+
+              <!-- Statistics Cards -->
+              <div class="row mb-5">
+                <div class="col-md-4 mb-3">
+                  <div
+                    class="card stat-card"
+                    th:classappend="${balance >= 0} ? 'bg-primary' : 'bg-warning'"
+                    style="color: white"
+                  >
+                    <div class="card-body text-center">
+                      <h5 class="card-title">Balance</h5>
+                      <h2
+                        class="card-text fw-bold"
+                        th:text="'Rp ' + ${#numbers.formatDecimal(balance, 0, 'COMMA', 0, 'POINT')}"
+                      >
+                        Rp 0
+                      </h2>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <div class="card stat-card balance-positive text-white">
+                    <div class="card-body text-center">
+                      <h5 class="card-title">Income</h5>
+                      <h2
+                        class="card-text fw-bold"
+                        th:text="'Rp ' + ${#numbers.formatDecimal(totalIncome, 0, 'COMMA', 0, 'POINT')}"
+                      >
+                        Rp 0
+                      </h2>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <div class="card stat-card balance-negative text-white">
+                    <div class="card-body text-center">
+                      <h5 class="card-title">Expense</h5>
+                      <h2
+                        class="card-text fw-bold"
+                        th:text="'Rp ' + ${#numbers.formatDecimal(totalExpense, 0, 'COMMA', 0, 'POINT')}"
+                      >
+                        Rp 0
+                      </h2>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Recent Transactions Preview -->
-            <div class="row">
-              <div class="col-12">
-                <div class="card">
-                  <div class="card-header bg-light">
-                    <h5 class="card-title mb-0">
-                      <i class="fas fa-clock me-2"></i>Recent Transactions
-                    </h5>
+              <!-- Action Buttons -->
+              <div class="row mb-5">
+                <div class="col-12 text-center">
+                  <h5 class="mb-4">Quick Actions</h5>
+                  <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <button
+                      class="btn btn-lg btn-outline-success"
+                      data-bs-toggle="modal"
+                      data-bs-target="#incomeModal"
+                    >
+                      <small>Add Income</small>
+                    </button>
+                    <button
+                      class="btn btn-lg btn-outline-danger"
+                      data-bs-toggle="modal"
+                      data-bs-target="#expenseModal"
+                    >
+                      <small>Add Expense</small>
+                    </button>
+                    <a
+                      href="/transactions"
+                      class="btn btn-lg btn-outline-primary"
+                    >
+                      <small>Transactions</small>
+                    </a>
+                    <a
+                      href="/categories"
+                      class="btn btn-lg btn-outline-secondary"
+                    >
+                      <small>Categories</small>
+                    </a>
                   </div>
-                  <div class="card-body">
-                    <p class="text-muted text-center py-4">
-                      <i class="fas fa-info-circle me-2"></i>
-                      Start by adding your first income or expense transaction!
-                    </p>
-                    <div class="text-center">
-                      <button
-                        class="btn btn-outline-success me-2"
-                        data-bs-toggle="modal"
-                        data-bs-target="#incomeModal"
-                      >
-                        Add Income
-                      </button>
-                      <button
-                        class="btn btn-outline-danger"
-                        data-bs-toggle="modal"
-                        data-bs-target="#expenseModal"
-                      >
-                        Add Expense
-                      </button>
+                </div>
+              </div>
+
+              <!-- Recent Transactions Preview -->
+              <div class="row">
+                <div class="col-12">
+                  <div class="card">
+                    <div class="card-header bg-light">
+                      <h5 class="card-title mb-0">
+                        <i class="fas fa-clock me-2"></i>Recent Transactions
+                      </h5>
+                    </div>
+                    <div class="card-body">
+                      <p class="text-muted text-center py-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Start by adding your first income or expense
+                        transaction!
+                      </p>
                     </div>
                   </div>
                 </div>
