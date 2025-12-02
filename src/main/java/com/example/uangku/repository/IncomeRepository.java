@@ -2,6 +2,8 @@ package com.example.uangku.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface IncomeRepository extends JpaRepository<com.example.uangku.model.Income, Long> {
+import com.example.uangku.model.Income;
+
+public interface IncomeRepository extends JpaRepository<Income, Long> {
 
 }
