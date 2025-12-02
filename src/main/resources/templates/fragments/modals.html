@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <!-- Income Modal Fragment -->
+    <div
+      th:fragment="incomeModal"
+      class="modal fade"
+      id="incomeModal"
+      tabindex="-1"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title">
+              <i class="fas fa-plus me-2"></i>Add Income
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <form action="/income/add" method="post">
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label">Amount (Rp)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  name="amount"
+                  step="0.01"
+                  min="0"
+                  required
+                  placeholder="Enter amount"
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Category</label>
+                <select class="form-control" name="categoryId" required>
+                  <option value="">Select Income Category</option>
+                  <option
+                    th:each="category : ${categories}"
+                    th:value="${category.id}"
+                    th:text="${category.name}"
+                    th:if="${category.type == 'income'}"
+                  ></option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Date</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  name="date"
+                  required
+                  th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Notes (Optional)</label>
+                <textarea
+                  class="form-control"
+                  name="notes"
+                  rows="3"
+                  placeholder="Add any notes about this income..."
+                ></textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                <i class="fas fa-times me-1"></i>Cancel
+              </button>
+              <button type="submit" class="btn btn-success">
+                <i class="fas fa-plus me-1"></i>Add Income
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expense Modal Fragment -->
+    <div
+      th:fragment="expenseModal"
+      class="modal fade"
+      id="expenseModal"
+      tabindex="-1"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title">
+              <i class="fas fa-minus me-2"></i>Add Expense
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <form action="/expense/add" method="post">
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label">Amount (Rp)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  name="amount"
+                  step="0.01"
+                  min="0"
+                  required
+                  placeholder="Enter amount"
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Category</label>
+                <select class="form-control" name="categoryId" required>
+                  <option value="">Select Expense Category</option>
+                  <option
+                    th:each="category : ${categories}"
+                    th:value="${category.id}"
+                    th:text="${category.name}"
+                    th:if="${category.type == 'expense'}"
+                  ></option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Date</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  name="date"
+                  required
+                  th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Notes (Optional)</label>
+                <textarea
+                  class="form-control"
+                  name="notes"
+                  rows="3"
+                  placeholder="Add any notes about this expense..."
+                ></textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                <i class="fas fa-times me-1"></i>Cancel
+              </button>
+              <button type="submit" class="btn btn-danger">
+                <i class="fas fa-minus me-1"></i>Add Expense
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
