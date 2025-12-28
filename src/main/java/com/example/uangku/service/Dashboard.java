@@ -22,37 +22,32 @@ public class Dashboard {
     /**
      * Get total income for a specific date range
      */
-    public double getTotalIncome(LocalDate startDate, LocalDate endDate) {
-        return statisticsCalculator.getTotalIncome(startDate, endDate);
+
+    public double getTotalIncome(com.example.uangku.model.User user, LocalDate startDate, LocalDate endDate) {
+        return statisticsCalculator.getTotalIncome(user, startDate, endDate);
     }
 
-    /**
-     * Get total expense for a specific date range
-     */
-    public double getTotalExpense(LocalDate startDate, LocalDate endDate) {
-        return statisticsCalculator.getTotalExpense(startDate, endDate);
+    public double getTotalExpense(com.example.uangku.model.User user, LocalDate startDate, LocalDate endDate) {
+        return statisticsCalculator.getTotalExpense(user, startDate, endDate);
     }
 
-    /**
-     * Get balance (income - expense) for a specific date range
-     */
-    public double getBalance(LocalDate startDate, LocalDate endDate) {
-        return statisticsCalculator.getBalance(startDate, endDate);
+    public double getBalance(com.example.uangku.model.User user, LocalDate startDate, LocalDate endDate) {
+        return statisticsCalculator.getBalance(user, startDate, endDate);
     }
 
     /**
      * Get comprehensive monthly data for a specific year and month
      */
-    public Map<String, Object> getMonthlyData(int year, int month) {
+    public Map<String, Object> getMonthlyData(com.example.uangku.model.User user, int year, int month) {
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDate startDate = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();
 
-        double totalIncome = getTotalIncome(startDate, endDate);
-        double totalExpense = getTotalExpense(startDate, endDate);
-        double balance = getBalance(startDate, endDate);
+        double totalIncome = getTotalIncome(user, startDate, endDate);
+        double totalExpense = getTotalExpense(user, startDate, endDate);
+        double balance = getBalance(user, startDate, endDate);
 
-        List<Transaction> transactions = transactionManager.getTransactionsByDateRange(startDate, endDate);
+        List<Transaction> transactions = transactionManager.getTransactionsByDateRange(user, startDate, endDate);
 
         Map<String, Object> monthlyData = new HashMap<>();
         monthlyData.put("year", year);
@@ -77,12 +72,12 @@ public class Dashboard {
     /**
      * Get current month summary with additional insights
      */
-    public Map<String, Object> getCurrentMonthSummary() {
+    public Map<String, Object> getCurrentMonthSummary(com.example.uangku.model.User user) {
         LocalDate now = LocalDate.now();
         int currentYear = now.getYear();
         int currentMonth = now.getMonthValue();
 
-        Map<String, Object> currentSummary = getMonthlyData(currentYear, currentMonth);
+        Map<String, Object> currentSummary = getMonthlyData(user, currentYear, currentMonth);
 
         // Add current month specific data
         int daysPassed = now.getDayOfMonth();
@@ -120,15 +115,15 @@ public class Dashboard {
     /**
      * Get overall totals (all time)
      */
-    public double getTotalIncome() {
-        return statisticsCalculator.getTotalIncome();
+    public double getTotalIncome(com.example.uangku.model.User user) {
+        return statisticsCalculator.getTotalIncome(user);
     }
 
-    public double getTotalExpense() {
-        return statisticsCalculator.getTotalExpense();
+    public double getTotalExpense(com.example.uangku.model.User user) {
+        return statisticsCalculator.getTotalExpense(user);
     }
 
-    public double getBalance() {
-        return statisticsCalculator.getBalance();
+    public double getBalance(com.example.uangku.model.User user) {
+        return statisticsCalculator.getBalance(user);
     }
 }

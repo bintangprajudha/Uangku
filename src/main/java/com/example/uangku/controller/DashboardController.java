@@ -18,6 +18,7 @@ import com.example.uangku.service.Dashboard;
 import com.example.uangku.service.ExpenseService;
 import com.example.uangku.service.IncomeService;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -30,19 +31,17 @@ public class DashboardController {
     private final ExpenseService expenseService;
 
     @GetMapping("/")
-    public String dashboard(Model model) {
-        // Get overall statistics
-        model.addAttribute("totalIncome", dashboard.getTotalIncome());
-        model.addAttribute("totalExpense", dashboard.getTotalExpense());
-        model.addAttribute("balance", dashboard.getBalance());
-
-        // Get current month summary for additional insights
-        Map<String, Object> currentMonthSummary = dashboard.getCurrentMonthSummary();
+    public String dashboard(Model model, HttpSession session) {
+        com.example.uangku.model.User user = (com.example.uangku.model.User) session.getAttribute("user");
+        if (user == null)
+            return "redirect:/auth/login";
+        model.addAttribute("totalIncome", incomeService.getTotalIncomeByUser(user));
+        model.addAttribute("totalExpense", expenseService.getTotalExpenseByUser(user));
+        model.addAttribute("balance",
+                incomeService.getTotalIncomeByUser(user) - expenseService.getTotalExpenseByUser(user));
+        Map<String, Object> currentMonthSummary = dashboard.getCurrentMonthSummary(user);
         model.addAttribute("currentMonthSummary", currentMonthSummary);
-
-        // Add categories for modal forms
         model.addAttribute("categories", categoryService.getAllCategories());
-
         return "dashboard";
     }
 
@@ -51,15 +50,19 @@ public class DashboardController {
             @RequestParam Long categoryId,
             @RequestParam LocalDate date,
             @RequestParam(required = false) String notes,
+            HttpSession session,
             RedirectAttributes redirectAttributes) {
         try {
+            com.example.uangku.model.User user = (com.example.uangku.model.User) session.getAttribute("user");
+            if (user == null)
+                return "redirect:/auth/login";
             Income income = new Income();
             income.setAmount(amount);
             income.setCategory(categoryService.getCategoryById(categoryId));
             income.setDate(date);
             income.setNotes(notes);
             income.setCreatedAt(LocalDateTime.now());
-
+            income.setUser(user);
             incomeService.addIncome(income);
             redirectAttributes.addFlashAttribute("success", "Income added successfully!");
         } catch (Exception e) {
@@ -73,15 +76,19 @@ public class DashboardController {
             @RequestParam Long categoryId,
             @RequestParam LocalDate date,
             @RequestParam(required = false) String notes,
+            HttpSession session,
             RedirectAttributes redirectAttributes) {
         try {
+            com.example.uangku.model.User user = (com.example.uangku.model.User) session.getAttribute("user");
+            if (user == null)
+                return "redirect:/auth/login";
             Expense expense = new Expense();
             expense.setAmount(amount);
             expense.setCategory(categoryService.getCategoryById(categoryId));
             expense.setDate(date);
             expense.setNotes(notes);
             expense.setCreatedAt(LocalDateTime.now());
-
+            expense.setUser(user);
             expenseService.addExpense(expense);
             redirectAttributes.addFlashAttribute("success", "Expense added successfully!");
         } catch (Exception e) {
