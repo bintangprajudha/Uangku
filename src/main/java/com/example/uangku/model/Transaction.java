@@ -15,12 +15,15 @@ import lombok.Data;
 public abstract class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; 
+    private Long id;
 
     private Double amount;
 
     @ManyToOne
     private Category category;
+
+    @ManyToOne
+    private User user;
 
     private LocalDate date;
     private String notes;

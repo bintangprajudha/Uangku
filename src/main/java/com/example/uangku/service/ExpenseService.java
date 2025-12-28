@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.example.uangku.model.Expense;
+import com.example.uangku.model.User;
 import com.example.uangku.repository.ExpenseRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -20,8 +21,8 @@ public class ExpenseService {
         return expenseRepository.save(expense);
     }
 
-    public List<Expense> getAllExpenses() {
-        return expenseRepository.findAll();
+    public List<Expense> getAllExpensesByUser(User user) {
+        return expenseRepository.findByUser(user);
     }
 
     public Expense getExpenseById(Long id) {
@@ -32,8 +33,8 @@ public class ExpenseService {
         expenseRepository.deleteById(id);
     }
 
-    public Double getTotalExpense() {
-        return expenseRepository.findAll().stream()
+    public Double getTotalExpenseByUser(User user) {
+        return expenseRepository.findByUser(user).stream()
                 .mapToDouble(Expense::getAmount)
                 .sum();
     }
