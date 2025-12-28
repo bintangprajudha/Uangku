@@ -8,10 +8,11 @@ import com.example.uangku.utils.AuthInterceptor;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new AuthInterceptor())
-                .addPathPatterns("/dashboard", "/", "/income/**", "/expense/**")
-                .excludePathPatterns("/auth/**", "/static/**");
+                .addPathPatterns( "/dashboard", "/","/income/**", "/expense/**","/categories/**")
+                .excludePathPatterns("/auth/**","/static/**");
     }
 }
