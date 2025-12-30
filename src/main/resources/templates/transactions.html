@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Uangku - Dashboard</title>
+    <title>Uangku - Transactions</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -39,12 +39,6 @@
         overflow-y: auto;
       }
 
-      .balance-positive {
-        background-color: #16c47f;
-      }
-      .balance-negative {
-        background-color: #ff2e63;
-      }
       .stat-card {
         border: none;
         border-radius: 15px;
@@ -113,7 +107,7 @@
 
               <ul class="nav nav-pills flex-column">
                 <li class="nav-item mb-2">
-                  <a href="/" class="nav-link active text-black">
+                  <a href="/" class="nav-link text-black">
                     <i class="fas fa-home me-2"></i>Dashboard
                   </a>
                 </li>
@@ -138,7 +132,7 @@
                   </a>
                 </li>
                 <li class="nav-item mb-2">
-                  <a href="/transactions" class="nav-link text-black">
+                  <a href="/transactions" class="nav-link active text-black">
                     <i class="fas fa-list me-2"></i>Transactions
                   </a>
                 </li>
@@ -187,118 +181,34 @@
                 ></button>
               </div>
 
-              <!-- Statistics Cards -->
-              <div class="row mb-5">
-                <div class="col-md-4 mb-3">
-                  <div
-                    class="card stat-card"
-                    th:classappend="${balance >= 0} ? 'bg-primary' : 'bg-warning'"
-                    style="color: white"
-                  >
-                    <div class="card-body text-center">
-                      <h5 class="card-title">Balance</h5>
-                      <h2
-                        class="card-text fw-bold"
-                        th:text="'Rp ' + ${#numbers.formatDecimal(balance, 0, 'COMMA', 0, 'POINT')}"
-                      >
-                        Rp 0
-                      </h2>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-md-4 mb-3">
-                  <div class="card stat-card balance-positive text-white">
-                    <div class="card-body text-center">
-                      <h5 class="card-title">Income</h5>
-                      <h2
-                        class="card-text fw-bold"
-                        th:text="'Rp ' + ${#numbers.formatDecimal(totalIncome, 0, 'COMMA', 0, 'POINT')}"
-                      >
-                        Rp 0
-                      </h2>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-md-4 mb-3">
-                  <div class="card stat-card balance-negative text-white">
-                    <div class="card-body text-center">
-                      <h5 class="card-title">Expense</h5>
-                      <h2
-                        class="card-text fw-bold"
-                        th:text="'Rp ' + ${#numbers.formatDecimal(totalExpense, 0, 'COMMA', 0, 'POINT')}"
-                      >
-                        Rp 0
-                      </h2>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Action Buttons -->
-              <div class="row mb-5">
-                <div class="col-12 text-center">
-                  <h5 class="mb-4">Quick Actions</h5>
-                  <div class="d-flex justify-content-center gap-3 flex-wrap">
-                    <button
-                      class="btn btn-lg btn-outline-success"
-                      data-bs-toggle="modal"
-                      data-bs-target="#incomeModal"
-                    >
-                      <small>Add Income</small>
-                    </button>
-                    <button
-                      class="btn btn-lg btn-outline-danger"
-                      data-bs-toggle="modal"
-                      data-bs-target="#expenseModal"
-                    >
-                      <small>Add Expense</small>
-                    </button>
-                    <a
-                      href="/transactions"
-                      class="btn btn-lg btn-outline-primary"
-                    >
-                      <small>Transactions</small>
-                    </a>
-                    <a
-                      href="/categories"
-                      class="btn btn-lg btn-outline-secondary"
-                    >
-                      <small>Categories</small>
-                    </a>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Recent Transactions Preview -->
+              <!-- Transactions Table -->
               <div class="row">
                 <div class="col-12">
                   <div class="card">
                     <div class="card-header bg-light">
                       <h5 class="card-title mb-0">
-                        <i class="fas fa-clock me-2"></i>Recent Transactions
+                        <i class="fas fa-list me-2"></i>Transaction History
                       </h5>
                     </div>
                     <div class="card-body">
-                      <div th:if="${#lists.isEmpty(recentTransactions)}" class="text-center py-4">
-                        <p class="text-muted">
-                          <i class="fas fa-info-circle me-2"></i>
-                          Start by adding your first income or expense transaction!
-                        </p>
+                      <div th:if="${#lists.isEmpty(transactions)}" class="text-center py-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        No transactions found. Start by adding your first income or expense!
                       </div>
-                      <div th:if="${!#lists.isEmpty(recentTransactions)}" class="table-responsive">
-                        <table class="table table-sm">
+                      <div th:if="${!#lists.isEmpty(transactions)}" class="table-responsive">
+                        <table class="table table-striped">
                           <thead>
                             <tr>
                               <th>Date</th>
                               <th>Type</th>
                               <th>Category</th>
                               <th>Amount</th>
+                              <th>Notes</th>
+                              <th>Delete</th>
                             </tr>
                           </thead>
                           <tbody>
-                            <tr th:each="transaction : ${recentTransactions}">
+                            <tr th:each="transaction : ${transactions}">
                               <td th:text="${transaction.date != null ? #temporals.format(transaction.date, 'dd/MM/yyyy') : 'N/A'}"></td>
                               <td>
                                 <span th:if="${transaction.type == 'Income'}" class="badge bg-success">Income</span>
@@ -309,14 +219,17 @@
                                 <span th:if="${transaction.type == 'Income'}" class="text-success" th:text="${transaction.amount != null ? 'Rp ' + #numbers.formatDecimal(transaction.amount, 0, 'COMMA', 0, 'POINT') : 'N/A'}"></span>
                                 <span th:if="${transaction.type == 'Expense'}" class="text-danger" th:text="${transaction.amount != null ? 'Rp ' + #numbers.formatDecimal(transaction.amount, 0, 'COMMA', 0, 'POINT') : 'N/A'}"></span>
                               </td>
+                              <td th:text="${transaction.notes != null ? transaction.notes : '-'}"></td>
+                              <td>
+                                <form th:action="'/transaction/delete/' + ${transaction.id}" method="post" style="display: inline;">
+                                  <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this transaction?')">
+                                    <i class="fas fa-trash"></i> Delete
+                                  </button>
+                                </form>
+                              </td>
                             </tr>
                           </tbody>
                         </table>
-                        <div class="text-center mt-3">
-                          <a href="/transactions" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-list me-1"></i>View All Transactions
-                          </a>
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -328,8 +241,7 @@
       </div>
     </div>
 
-    <div th:replace="fragments/modals :: incomeModal"></div>
-    <div th:replace="fragments/modals :: expenseModal"></div>
+    <!-- Modals can be added here if needed -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </body>

@@ -2,11 +2,14 @@ package com.example.uangku.controller;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -45,6 +48,54 @@ public class DashboardController {
         Map<String, Object> currentMonthSummary = dashboard.getCurrentMonthSummary(user);
         model.addAttribute("currentMonthSummary", currentMonthSummary);
         model.addAttribute("categories", categoryService.getAllCategoriesSorted());
+
+        // Get recent transactions (limit to 5 most recent)
+        List<Map<String, Object>> recentTransactions = new ArrayList<>();
+        List<com.example.uangku.model.Income> incomes = incomeService.getAllIncomesByUser(user);
+        List<com.example.uangku.model.Expense> expenses = expenseService.getAllExpensesByUser(user);
+
+        // Convert incomes to map
+        for (com.example.uangku.model.Income income : incomes) {
+            Map<String, Object> transactionMap = new java.util.HashMap<>();
+            transactionMap.put("id", income.getId());
+            transactionMap.put("amount", income.getAmount());
+            transactionMap.put("category", income.getCategory());
+            transactionMap.put("date", income.getDate());
+            transactionMap.put("notes", income.getNotes());
+            transactionMap.put("type", "Income");
+            transactionMap.put("createdAt", income.getCreatedAt());
+            recentTransactions.add(transactionMap);
+        }
+
+        // Convert expenses to map
+        for (com.example.uangku.model.Expense expense : expenses) {
+            Map<String, Object> transactionMap = new java.util.HashMap<>();
+            transactionMap.put("id", expense.getId());
+            transactionMap.put("amount", expense.getAmount());
+            transactionMap.put("category", expense.getCategory());
+            transactionMap.put("date", expense.getDate());
+            transactionMap.put("notes", expense.getNotes());
+            transactionMap.put("type", "Expense");
+            transactionMap.put("createdAt", expense.getCreatedAt());
+            recentTransactions.add(transactionMap);
+        }
+
+        // Sort by createdAt descending (most recent first), handling null dates
+        recentTransactions.sort((t1, t2) -> {
+            LocalDateTime createdAt1 = (LocalDateTime) t1.get("createdAt");
+            LocalDateTime createdAt2 = (LocalDateTime) t2.get("createdAt");
+            if (createdAt1 == null && createdAt2 == null) return 0;
+            if (createdAt1 == null) return 1;
+            if (createdAt2 == null) return -1;
+            return createdAt2.compareTo(createdAt1);
+        });
+
+        // Limit to 5 most recent
+        if (recentTransactions.size() > 5) {
+            recentTransactions = recentTransactions.subList(0, 5);
+        }
+        model.addAttribute("recentTransactions", recentTransactions);
+
         return "dashboard";
     }
 
@@ -150,5 +201,81 @@ public class DashboardController {
             redirectAttributes.addFlashAttribute("error", "Failed to delete category: " + e.getMessage());
         }
         return "redirect:/categories";
+    }
+
+    @GetMapping("/transactions")
+    public String transactions(Model model, HttpSession session) {
+        com.example.uangku.model.User user = (com.example.uangku.model.User) session.getAttribute("user");
+        if (user == null)
+            return "redirect:/auth/login";
+        List<Map<String, Object>> transactions = new ArrayList<>();
+        List<com.example.uangku.model.Income> incomes = incomeService.getAllIncomesByUser(user);
+        List<com.example.uangku.model.Expense> expenses = expenseService.getAllExpensesByUser(user);
+
+        // Convert incomes to map
+        for (com.example.uangku.model.Income income : incomes) {
+            Map<String, Object> transactionMap = new java.util.HashMap<>();
+            transactionMap.put("id", income.getId());
+            transactionMap.put("amount", income.getAmount());
+            transactionMap.put("category", income.getCategory());
+            transactionMap.put("date", income.getDate());
+            transactionMap.put("notes", income.getNotes());
+            transactionMap.put("type", "Income");
+            transactions.add(transactionMap);
+        }
+
+        // Convert expenses to map
+        for (com.example.uangku.model.Expense expense : expenses) {
+            Map<String, Object> transactionMap = new java.util.HashMap<>();
+            transactionMap.put("id", expense.getId());
+            transactionMap.put("amount", expense.getAmount());
+            transactionMap.put("category", expense.getCategory());
+            transactionMap.put("date", expense.getDate());
+            transactionMap.put("notes", expense.getNotes());
+            transactionMap.put("type", "Expense");
+            transactions.add(transactionMap);
+        }
+
+        // Sort by date descending, handling null dates
+        transactions.sort((t1, t2) -> {
+            LocalDate date1 = (LocalDate) t1.get("date");
+            LocalDate date2 = (LocalDate) t2.get("date");
+            if (date1 == null && date2 == null) return 0;
+            if (date1 == null) return 1;
+            if (date2 == null) return -1;
+            return date2.compareTo(date1);
+        });
+        model.addAttribute("transactions", transactions);
+        return "transactions";
+    }
+
+    @PostMapping("/transaction/delete/{id}")
+    public String deleteTransaction(@PathVariable Long id, HttpSession session, RedirectAttributes redirectAttributes) {
+        try {
+            com.example.uangku.model.User user = (com.example.uangku.model.User) session.getAttribute("user");
+            if (user == null)
+                return "redirect:/auth/login";
+
+            // Try to delete as Income first
+            Income income = incomeService.getIncomeById(id);
+            if (income != null && income.getUser().getId().equals(user.getId())) {
+                incomeService.deleteIncome(id);
+                redirectAttributes.addFlashAttribute("success", "Income deleted successfully!");
+                return "redirect:/transactions";
+            }
+
+            // Try to delete as Expense
+            Expense expense = expenseService.getExpenseById(id);
+            if (expense != null && expense.getUser().getId().equals(user.getId())) {
+                expenseService.deleteExpense(id);
+                redirectAttributes.addFlashAttribute("success", "Expense deleted successfully!");
+                return "redirect:/transactions";
+            }
+
+            redirectAttributes.addFlashAttribute("error", "Transaction not found or access denied.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Failed to delete transaction: " + e.getMessage());
+        }
+        return "redirect:/transactions";
     }
 }
