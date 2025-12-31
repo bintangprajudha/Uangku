@@ -10,4 +10,9 @@ import lombok.EqualsAndHashCode;
 public class Income extends Transaction {
     private String source;
 
+    @Override
+    public String getType() {
+        return "Income";
+    }
+
 }

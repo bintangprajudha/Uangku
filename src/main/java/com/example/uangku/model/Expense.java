@@ -9,4 +9,9 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class Expense extends Transaction {
     private String paymentMethod; // Optional: Cash, Credit Card, etc.
+
+    @Override
+    public String getType() {
+        return "Expense";
+    }
 }

@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.uangku.dto.CategoryRequestDTO;
@@ -246,6 +245,7 @@ public class DashboardController {
             return date2.compareTo(date1);
         });
         model.addAttribute("transactions", transactions);
+        model.addAttribute("categories", categoryService.getAllCategoriesSorted());
         return "transactions";
     }
 
