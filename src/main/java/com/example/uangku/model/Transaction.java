@@ -30,4 +30,6 @@ public abstract class Transaction {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    public abstract String getType();
 }
