@@ -22,6 +22,7 @@ import com.example.uangku.service.CategoryService;
 import com.example.uangku.service.Dashboard;
 import com.example.uangku.service.ExpenseService;
 import com.example.uangku.service.IncomeService;
+import com.example.uangku.service.StatisticCalculatorService;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class DashboardController {
     private final CategoryService categoryService;
     private final IncomeService incomeService;
     private final ExpenseService expenseService;
+    private final StatisticCalculatorService statisticCalculatorService;
 
     @GetMapping("/")
     public String dashboard(Model model, HttpSession session) {
@@ -277,5 +279,18 @@ public class DashboardController {
             redirectAttributes.addFlashAttribute("error", "Failed to delete transaction: " + e.getMessage());
         }
         return "redirect:/transactions";
+    }
+
+    @GetMapping("/reports")
+    public String reports(Model model, HttpSession session) {
+        com.example.uangku.model.User user = (com.example.uangku.model.User) session.getAttribute("user");
+        if (user == null)
+            return "redirect:/auth/login";
+
+        // Get monthly summaries for the last 12 months
+        List<Map<String, Object>> monthlySummaries = statisticCalculatorService.getMonthlySummaries(user);
+        model.addAttribute("monthlySummaries", monthlySummaries);
+
+        return "reports";
     }
 }
