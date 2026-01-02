@@ -32,4 +32,8 @@ public abstract class Transaction {
     private LocalDateTime updatedAt;
 
     public abstract String getType();
+
+    public double getAmount() {
+        return amount != null ? amount : 0.0;
+    }
 }
