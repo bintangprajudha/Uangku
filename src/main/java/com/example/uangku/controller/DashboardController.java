@@ -15,13 +15,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.uangku.dto.CategoryRequestDTO;
-
+// ** raska added
+import com.example.uangku.dto.CategoryStatsDTO;
+import com.example.uangku.dto.QuickStatsDTO;
+// ** raska added end
 import com.example.uangku.model.Expense;
 import com.example.uangku.model.Income;
 import com.example.uangku.service.CategoryService;
 import com.example.uangku.service.Dashboard;
 import com.example.uangku.service.ExpenseService;
 import com.example.uangku.service.IncomeService;
+import com.example.uangku.service.QuickStatsService;
 import com.example.uangku.service.StatisticCalculatorService;
 
 import jakarta.servlet.http.HttpSession;
@@ -36,6 +40,9 @@ public class DashboardController {
     private final IncomeService incomeService;
     private final ExpenseService expenseService;
     private final StatisticCalculatorService statisticCalculatorService;
+    // raska added
+    private final QuickStatsService quickStatsService;
+    // raska added end
 
     @GetMapping("/")
     public String dashboard(Model model, HttpSession session) {
@@ -49,6 +56,13 @@ public class DashboardController {
         Map<String, Object> currentMonthSummary = dashboard.getCurrentMonthSummary(user);
         model.addAttribute("currentMonthSummary", currentMonthSummary);
         model.addAttribute("categories", categoryService.getAllCategoriesSorted());
+        // raska added
+        QuickStatsDTO quickStats = quickStatsService.getQuickStats(user.getId());
+        model.addAttribute("quickStats", quickStats);
+
+        List<CategoryStatsDTO> categoryBreakdown = quickStatsService.getCategoryBreakdown(user.getId());
+        model.addAttribute("categoryBreakdown", categoryBreakdown);
+        // raska added end
 
         // Get recent transactions (limit to 5 most recent)
         List<Map<String, Object>> recentTransactions = new ArrayList<>();

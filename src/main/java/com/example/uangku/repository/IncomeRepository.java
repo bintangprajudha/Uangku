@@ -9,4 +9,7 @@ import com.example.uangku.model.User;
 
 public interface IncomeRepository extends JpaRepository<Income, Long> {
     List<Income> findByUser(User user);
+
+    // raska added
+    List<Income> findByUserId(Long userId);
 }

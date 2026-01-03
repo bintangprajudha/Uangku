@@ -1,322 +1,447 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Uangku - Dashboard</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-      rel="stylesheet"
-    />
-    <style>
-      html,
-      body {
-        height: 100%;
-        overflow: hidden;
-        margin: 0;
-        padding: 0;
-      }
 
-      .main-container {
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Uangku - Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    html,
+    body {
+      height: 100%;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
 
-      .content-wrapper {
-        flex: 1;
-        overflow-y: auto;
-        overflow-x: hidden;
-      }
+    .main-container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
 
-      .sidebar {
-        height: 100%;
-        overflow-y: auto;
-      }
+    .content-wrapper {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
 
-      .balance-positive {
-        background-color: #16c47f;
-      }
-      .balance-negative {
-        background-color: #ff2e63;
-      }
-      .stat-card {
-        border: none;
-        border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s;
-      }
-      .stat-card:hover {
-        transform: translateY(-5px);
-      }
-      .btn-action {
-        border-radius: 25px;
-        padding: 12px 30px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <div class="container-fluid">
-        <a class="navbar-brand fw-bold" href="#">
-          <i class="fas fa-wallet me-2"></i>Uangku
-        </a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="#">
-                <i class="fas fa-user me-1"></i>Profile
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">
-                <i class="fas fa-cog me-1"></i>Settings
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link text-danger fw-bold" href="/auth/logout">
-                <i class="fas fa-sign-out-alt me-1"></i>Logout
-              </a>
-            </li>
-          </ul>
-        </div>
+    .sidebar {
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    .balance-positive {
+      background-color: #16c47f;
+    }
+
+    .balance-negative {
+      background-color: #ff2e63;
+    }
+
+    .stat-card {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .btn-action {
+      border-radius: 25px;
+      padding: 12px 30px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold" href="#">
+        <i class="fas fa-wallet me-2"></i>Uangku
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <i class="fas fa-user me-1"></i>Profile
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <i class="fas fa-cog me-1"></i>Settings
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-danger fw-bold" href="/auth/logout">
+              <i class="fas fa-sign-out-alt me-1"></i>Logout
+            </a>
+          </li>
+        </ul>
       </div>
-    </nav>
+    </div>
+  </nav>
 
-    <div class="main-container">
-      <div class="container-fluid content-wrapper">
-        <div class="row">
-          <!-- Sidebar -->
-          <div class="col-md-3 col-lg-2 p-0">
-            <div class="sidebar text-black p-3">
-              <div class="text-center mb-4">
-                <i class="fas fa-chart-pie fa-3x mb-3"></i>
-                <h5>Dashboard</h5>
-              </div>
-
-              <ul class="nav nav-pills flex-column">
-                <li class="nav-item mb-2">
-                  <a href="/" class="nav-link active text-black">
-                    <i class="fas fa-home me-2"></i>Dashboard
-                  </a>
-                </li>
-                <li class="nav-item mb-2">
-                  <a
-                    href="#"
-                    class="nav-link text-black"
-                    data-bs-toggle="modal"
-                    data-bs-target="#incomeModal"
-                  >
-                    <i class="fas fa-plus-circle me-2"></i>Add Income
-                  </a>
-                </li>
-                <li class="nav-item mb-2">
-                  <a
-                    href="#"
-                    class="nav-link text-black"
-                    data-bs-toggle="modal"
-                    data-bs-target="#expenseModal"
-                  >
-                    <i class="fas fa-minus-circle me-2"></i>Add Expense
-                  </a>
-                </li>
-                <li class="nav-item mb-2">
-                  <a href="/transactions" class="nav-link text-black">
-                    <i class="fas fa-list me-2"></i>Transactions
-                  </a>
-                </li>
-                <li class="nav-item mb-2">
-                  <a href="/categories" class="nav-link text-black">
-                    <i class="fas fa-tags me-2"></i>Manage Categories
-                  </a>
-                </li>
-                <li class="nav-item mb-2">
-                  <a href="/reports" class="nav-link text-black">
-                    <i class="fas fa-chart-bar me-2"></i>Reports
-                  </a>
-                </li>
-              </ul>
+  <div class="main-container">
+    <div class="container-fluid content-wrapper">
+      <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 p-0">
+          <div class="sidebar text-black p-3">
+            <div class="text-center mb-4">
+              <i class="fas fa-chart-pie fa-3x mb-3"></i>
+              <h5>Dashboard</h5>
             </div>
+
+            <ul class="nav nav-pills flex-column">
+              <li class="nav-item mb-2">
+                <a href="/" class="nav-link active text-black">
+                  <i class="fas fa-home me-2"></i>Dashboard
+                </a>
+              </li>
+              <li class="nav-item mb-2">
+                <a href="#" class="nav-link text-black" data-bs-toggle="modal" data-bs-target="#incomeModal">
+                  <i class="fas fa-plus-circle me-2"></i>Add Income
+                </a>
+              </li>
+              <li class="nav-item mb-2">
+                <a href="#" class="nav-link text-black" data-bs-toggle="modal" data-bs-target="#expenseModal">
+                  <i class="fas fa-minus-circle me-2"></i>Add Expense
+                </a>
+              </li>
+              <li class="nav-item mb-2">
+                <a href="/transactions" class="nav-link text-black">
+                  <i class="fas fa-list me-2"></i>Transactions
+                </a>
+              </li>
+              <li class="nav-item mb-2">
+                <a href="/categories" class="nav-link text-black">
+                  <i class="fas fa-tags me-2"></i>Manage Categories
+                </a>
+              </li>
+              <li class="nav-item mb-2">
+                <a href="/reports" class="nav-link text-black">
+                  <i class="fas fa-chart-bar me-2"></i>Reports
+                </a>
+              </li>
+            </ul>
           </div>
+        </div>
 
-          <!-- Main Content -->
-          <div class="col-md-9 col-lg-10">
-            <div class="container-fluid py-4">
-              <!-- Flash Messages -->
-              <div
-                th:if="${success}"
-                class="alert alert-success alert-dismissible fade show"
-                role="alert"
-              >
-                <i class="fas fa-check-circle me-2"></i>
-                <span th:text="${success}"></span>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="alert"
-                ></button>
-              </div>
-              <div
-                th:if="${error}"
-                class="alert alert-danger alert-dismissible fade show"
-                role="alert"
-              >
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                <span th:text="${error}"></span>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="alert"
-                ></button>
-              </div>
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+          <div class="container-fluid py-4">
+            <!-- Flash Messages -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+              <i class="fas fa-check-circle me-2"></i>
+              <span th:text="${success}"></span>
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              <span th:text="${error}"></span>
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
 
-              <!-- Statistics Cards -->
-              <div class="row mb-5">
-                <div class="col-md-4 mb-3">
-                  <div
-                    class="card stat-card"
-                    th:classappend="${balance >= 0} ? 'bg-primary' : 'bg-warning'"
-                    style="color: white"
-                  >
-                    <div class="card-body text-center">
-                      <h5 class="card-title">Balance</h5>
-                      <h2
-                        class="card-text fw-bold"
-                        th:text="'Rp ' + ${#numbers.formatDecimal(balance, 0, 'COMMA', 0, 'POINT')}"
-                      >
-                        Rp 0
-                      </h2>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-md-4 mb-3">
-                  <div class="card stat-card balance-positive text-white">
-                    <div class="card-body text-center">
-                      <h5 class="card-title">Income</h5>
-                      <h2
-                        class="card-text fw-bold"
-                        th:text="'Rp ' + ${#numbers.formatDecimal(totalIncome, 0, 'COMMA', 0, 'POINT')}"
-                      >
-                        Rp 0
-                      </h2>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-md-4 mb-3">
-                  <div class="card stat-card balance-negative text-white">
-                    <div class="card-body text-center">
-                      <h5 class="card-title">Expense</h5>
-                      <h2
-                        class="card-text fw-bold"
-                        th:text="'Rp ' + ${#numbers.formatDecimal(totalExpense, 0, 'COMMA', 0, 'POINT')}"
-                      >
-                        Rp 0
-                      </h2>
-                    </div>
+            <!-- Statistics Cards -->
+            <div class="row mb-5">
+              <div class="col-md-4 mb-3">
+                <div class="card stat-card" th:classappend="${balance >= 0} ? 'bg-primary' : 'bg-warning'"
+                  style="color: white">
+                  <div class="card-body text-center">
+                    <h5 class="card-title">Balance</h5>
+                    <h2 class="card-text fw-bold"
+                      th:text="'Rp ' + ${#numbers.formatDecimal(balance, 0, 'COMMA', 0, 'POINT')}">
+                      Rp 0
+                    </h2>
                   </div>
                 </div>
               </div>
 
-              <!-- Action Buttons -->
-              <div class="row mb-5">
-                <div class="col-12 text-center">
-                  <h5 class="mb-4">Quick Actions</h5>
-                  <div class="d-flex justify-content-center gap-3 flex-wrap">
-                    <button
-                      class="btn btn-lg btn-outline-success"
-                      data-bs-toggle="modal"
-                      data-bs-target="#incomeModal"
-                    >
-                      <small>Add Income</small>
-                    </button>
-                    <button
-                      class="btn btn-lg btn-outline-danger"
-                      data-bs-toggle="modal"
-                      data-bs-target="#expenseModal"
-                    >
-                      <small>Add Expense</small>
-                    </button>
-                    <a
-                      href="/transactions"
-                      class="btn btn-lg btn-outline-primary"
-                    >
-                      <small>Transactions</small>
-                    </a>
-                    <a
-                      href="/categories"
-                      class="btn btn-lg btn-outline-secondary"
-                    >
-                      <small>Categories</small>
-                    </a>
+              <div class="col-md-4 mb-3">
+                <div class="card stat-card balance-positive text-white">
+                  <div class="card-body text-center">
+                    <h5 class="card-title">Income</h5>
+                    <h2 class="card-text fw-bold"
+                      th:text="'Rp ' + ${#numbers.formatDecimal(totalIncome, 0, 'COMMA', 0, 'POINT')}">
+                      Rp 0
+                    </h2>
                   </div>
                 </div>
               </div>
 
-              <!-- Recent Transactions Preview -->
-              <div class="row">
-                <div class="col-12">
-                  <div class="card">
-                    <div class="card-header bg-light">
-                      <h5 class="card-title mb-0">
-                        <i class="fas fa-clock me-2"></i>Recent Transactions
+              <div class="col-md-4 mb-3">
+                <div class="card stat-card balance-negative text-white">
+                  <div class="card-body text-center">
+                    <h5 class="card-title">Expense</h5>
+                    <h2 class="card-text fw-bold"
+                      th:text="'Rp ' + ${#numbers.formatDecimal(totalExpense, 0, 'COMMA', 0, 'POINT')}">
+                      Rp 0
+                    </h2>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Quick Stats Widget -->
+            <div class="row mb-5" th:if="${quickStats != null}">
+              <div class="col-12">
+                <div class="card shadow-sm">
+                  <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>Quick Stats
                       </h5>
+                      <span class="badge bg-light text-dark"
+                        th:text="${quickStats.currentDay} + ' / ' + ${quickStats.totalDaysInMonth} + ' days'">
+                      </span>
                     </div>
-                    <div class="card-body">
-                      <div th:if="${#lists.isEmpty(recentTransactions)}" class="text-center py-4">
-                        <p class="text-muted">
-                          <i class="fas fa-info-circle me-2"></i>
-                          Start by adding your first income or expense transaction!
-                        </p>
-                      </div>
-                      <div th:if="${!#lists.isEmpty(recentTransactions)}" class="table-responsive">
-                        <table class="table table-sm">
-                          <thead>
-                            <tr>
-                              <th>Date</th>
-                              <th>Type</th>
-                              <th>Category</th>
-                              <th>Amount</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr th:each="transaction : ${recentTransactions}">
-                              <td th:text="${transaction.date != null ? #temporals.format(transaction.date, 'dd/MM/yyyy') : 'N/A'}"></td>
-                              <td>
-                                <span th:if="${transaction.type == 'Income'}" class="badge bg-success">Income</span>
-                                <span th:if="${transaction.type == 'Expense'}" class="badge bg-danger">Expense</span>
-                              </td>
-                              <td th:text="${transaction.category != null ? transaction.category.name : 'N/A'}"></td>
-                              <td>
-                                <span th:if="${transaction.type == 'Income'}" class="text-success" th:text="${transaction.amount != null ? 'Rp ' + #numbers.formatDecimal(transaction.amount, 0, 'COMMA', 0, 'POINT') : 'N/A'}"></span>
-                                <span th:if="${transaction.type == 'Expense'}" class="text-danger" th:text="${transaction.amount != null ? 'Rp ' + #numbers.formatDecimal(transaction.amount, 0, 'COMMA', 0, 'POINT') : 'N/A'}"></span>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                        <div class="text-center mt-3">
-                          <a href="/transactions" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-list me-1"></i>View All Transactions
-                          </a>
+                  </div>
+                  <div class="card-body">
+                    <div class="row g-3">
+                      <!-- Today's Expense -->
+                      <div class="col-md-6 col-lg-3">
+                        <div class="card border-0 bg-light h-100">
+                          <div class="card-body">
+                            <p class="text-muted small mb-1">
+                              <i class="fas fa-calendar-day me-1"></i>Today's Expense
+                            </p>
+                            <h4 class="mb-2"
+                              th:text="'Rp ' + ${#numbers.formatDecimal(quickStats.todayExpense, 0, 'COMMA', 0, 'POINT')}">
+                              Rp 0
+                            </h4>
+                            <small th:if="${quickStats.isTodayAboveAverage}" class="text-danger">
+                              <i class="fas fa-arrow-up"></i> Above average
+                            </small>
+                            <small th:if="${!quickStats.isTodayAboveAverage}" class="text-success">
+                              <i class="fas fa-arrow-down"></i> Below average
+                            </small>
+                          </div>
                         </div>
+                      </div>
+
+                      <!-- Daily Average -->
+                      <div class="col-md-6 col-lg-3">
+                        <div class="card border-0 bg-light h-100">
+                          <div class="card-body">
+                            <p class="text-muted small mb-1">
+                              <i class="fas fa-chart-bar me-1"></i>Daily Average
+                            </p>
+                            <h4 class="mb-0"
+                              th:text="'Rp ' + ${#numbers.formatDecimal(quickStats.dailyAverage, 0, 'COMMA', 0, 'POINT')}">
+                              Rp 0
+                            </h4>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Top Category -->
+                      <div class="col-md-6 col-lg-3">
+                        <div class="card border-0 bg-light h-100">
+                          <div class="card-body">
+                            <p class="text-muted small mb-1">
+                              <i class="fas fa-crown me-1"></i>Top Category
+                            </p>
+                            <h5 class="mb-1" th:text="${quickStats.topCategory}">N/A</h5>
+                            <small class="text-muted"
+                              th:text="'Rp ' + ${#numbers.formatDecimal(quickStats.topCategoryAmount, 0, 'COMMA', 0, 'POINT')}">
+                              Rp 0
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Savings Rate - PERBAIKAN DI SINI -->
+                      <div class="col-md-6 col-lg-3">
+                        <div class="card border-0 h-100"
+                          th:classappend="${quickStats.savingsRateStatus == 'EXCELLENT' ? 'bg-success text-white' : quickStats.savingsRateStatus == 'GOOD' ? 'bg-info text-white' : quickStats.savingsRateStatus == 'WARNING' ? 'bg-warning' : 'bg-danger text-white'}">
+                          <div class="card-body">
+                            <p class="small mb-1"
+                              th:classappend="${quickStats.savingsRateStatus == 'WARNING' ? 'text-dark' : ''}">
+                              <i class="fas fa-piggy-bank me-1"></i>Savings Rate
+                            </p>
+                            <h4 class="mb-1"
+                              th:classappend="${quickStats.savingsRateStatus == 'WARNING' ? 'text-dark' : ''}"
+                              th:text="${quickStats.savingsRate} + '%'">
+                              0%
+                            </h4>
+                            <small th:text="${quickStats.savingsRateStatus}"
+                              th:classappend="${quickStats.savingsRateStatus == 'WARNING' ? 'text-dark' : ''}">
+                              N/A
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Month Progress Bar -->
+                    <div class="mt-4">
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted">Month Progress</small>
+                        <small class="fw-bold" th:text="${quickStats.monthProgress} + '%'">0%</small>
+                      </div>
+                      <div class="progress" style="height: 20px;">
+                        <div class="progress-bar bg-primary" role="progressbar"
+                          th:style="'width: ' + ${quickStats.monthProgress} + '%'"
+                          th:attr="aria-valuenow=${quickStats.monthProgress}">
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Financial Summary -->
+                    <div class="row mt-4 pt-3 border-top">
+                      <div class="col-4 text-center">
+                        <small class="text-muted d-block">Total Income</small>
+                        <h6 class="text-success mb-0"
+                          th:text="'Rp ' + ${#numbers.formatDecimal(quickStats.totalIncome, 0, 'COMMA', 0, 'POINT')}">
+                          Rp 0
+                        </h6>
+                      </div>
+                      <div class="col-4 text-center border-start border-end">
+                        <small class="text-muted d-block">Total Expense</small>
+                        <h6 class="text-danger mb-0"
+                          th:text="'Rp ' + ${#numbers.formatDecimal(quickStats.totalExpense, 0, 'COMMA', 0, 'POINT')}">
+                          Rp 0
+                        </h6>
+                      </div>
+                      <div class="col-4 text-center">
+                        <small class="text-muted d-block">Total Savings</small>
+                        <h6 class="text-primary mb-0"
+                          th:text="'Rp ' + ${#numbers.formatDecimal(quickStats.totalSavings, 0, 'COMMA', 0, 'POINT')}">
+                          Rp 0
+                        </h6>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Category Breakdown Widget-->
+            <div class="row mb-5" th:if="${categoryBreakdown != null and !#lists.isEmpty(categoryBreakdown)}">
+              <div class="col-12">
+                <div class="card shadow-sm">
+                  <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">
+                      <i class="fas fa-chart-pie me-2"></i>Category Breakdown
+                    </h5>
+                  </div>
+                  <div class="card-body">
+                    <div th:each="category, iterStat : ${categoryBreakdown}" class="mb-3"
+                      th:classappend="${iterStat.last ? '' : 'border-bottom pb-3'}">
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                          <h6 class="mb-0" th:text="${category.categoryName}">Category</h6>
+                          <small class="text-muted" th:text="${category.transactionCount} + ' transactions'">
+                            0 transactions
+                          </small>
+                        </div>
+                        <div class="text-end">
+                          <h6 class="mb-0"
+                            th:text="'Rp ' + ${#numbers.formatDecimal(category.totalAmount, 0, 'COMMA', 0, 'POINT')}">
+                            Rp 0
+                          </h6>
+                          <small class="text-primary fw-bold"
+                            th:text="${#numbers.formatDecimal(category.percentage, 1, 2)} + '%'">
+                            0%
+                          </small>
+                        </div>
+                      </div>
+                      <div class="progress" style="height: 10px;">
+                        <div class="progress-bar"
+                          th:classappend="${iterStat.index % 4 == 0 ? 'bg-primary' : iterStat.index % 4 == 1 ? 'bg-success' : iterStat.index % 4 == 2 ? 'bg-warning' : 'bg-info'}"
+                          role="progressbar" th:style="'width: ' + ${category.percentage} + '%'"
+                          th:attr="aria-valuenow=${category.percentage}">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="row mb-5">
+              <div class="col-12 text-center">
+                <h5 class="mb-4">Quick Actions</h5>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                  <button class="btn btn-lg btn-outline-success" data-bs-toggle="modal" data-bs-target="#incomeModal">
+                    <small>Add Income</small>
+                  </button>
+                  <button class="btn btn-lg btn-outline-danger" data-bs-toggle="modal" data-bs-target="#expenseModal">
+                    <small>Add Expense</small>
+                  </button>
+                  <a href="/transactions" class="btn btn-lg btn-outline-primary">
+                    <small>Transactions</small>
+                  </a>
+                  <a href="/categories" class="btn btn-lg btn-outline-secondary">
+                    <small>Categories</small>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Transactions Preview -->
+            <div class="row">
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                      <i class="fas fa-clock me-2"></i>Recent Transactions
+                    </h5>
+                  </div>
+                  <div class="card-body">
+                    <div th:if="${#lists.isEmpty(recentTransactions)}" class="text-center py-4">
+                      <p class="text-muted">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Start by adding your first income or expense transaction!
+                      </p>
+                    </div>
+                    <div th:if="${!#lists.isEmpty(recentTransactions)}" class="table-responsive">
+                      <table class="table table-sm">
+                        <thead>
+                          <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr th:each="transaction : ${recentTransactions}">
+                            <td
+                              th:text="${transaction.date != null ? #temporals.format(transaction.date, 'dd/MM/yyyy') : 'N/A'}">
+                            </td>
+                            <td>
+                              <span th:if="${transaction.type == 'Income'}" class="badge bg-success">Income</span>
+                              <span th:if="${transaction.type == 'Expense'}" class="badge bg-danger">Expense</span>
+                            </td>
+                            <td th:text="${transaction.category != null ? transaction.category.name : 'N/A'}"></td>
+                            <td>
+                              <span th:if="${transaction.type == 'Income'}" class="text-success"
+                                th:text="${transaction.amount != null ? 'Rp ' + #numbers.formatDecimal(transaction.amount, 0, 'COMMA', 0, 'POINT') : 'N/A'}"></span>
+                              <span th:if="${transaction.type == 'Expense'}" class="text-danger"
+                                th:text="${transaction.amount != null ? 'Rp ' + #numbers.formatDecimal(transaction.amount, 0, 'COMMA', 0, 'POINT') : 'N/A'}"></span>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <div class="text-center mt-3">
+                        <a href="/transactions" class="btn btn-sm btn-outline-primary">
+                          <i class="fas fa-list me-1"></i>View All Transactions
+                        </a>
                       </div>
                     </div>
                   </div>
@@ -327,10 +452,12 @@
         </div>
       </div>
     </div>
+  </div>
 
-    <div th:replace="fragments/modals :: incomeModal"></div>
-    <div th:replace="fragments/modals :: expenseModal"></div>
+  <div th:replace="fragments/modals :: incomeModal"></div>
+  <div th:replace="fragments/modals :: expenseModal"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  </body>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
 </html>
