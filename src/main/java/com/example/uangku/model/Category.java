@@ -25,7 +25,7 @@ public class Category {
     private Long id;
 
     private String name;
-    private String type;   // income / expense
+    private String type;   
     private String icon;
     private String color;
 
@@ -35,7 +35,6 @@ public class Category {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    // Constructor sesuai diagram
     public Category(String name, String type, String icon, String color) {
         this.name = name;
         this.type = type;
