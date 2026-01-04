@@ -15,10 +15,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.uangku.dto.CategoryRequestDTO;
-// ** raska added
 import com.example.uangku.dto.CategoryStatsDTO;
 import com.example.uangku.dto.QuickStatsDTO;
-// ** raska added end
+import com.example.uangku.exception.InvalidTransactionException;
 import com.example.uangku.model.Expense;
 import com.example.uangku.model.Income;
 import com.example.uangku.service.CategoryService;
@@ -99,9 +98,12 @@ public class DashboardController {
         recentTransactions.sort((t1, t2) -> {
             LocalDateTime createdAt1 = (LocalDateTime) t1.get("createdAt");
             LocalDateTime createdAt2 = (LocalDateTime) t2.get("createdAt");
-            if (createdAt1 == null && createdAt2 == null) return 0;
-            if (createdAt1 == null) return 1;
-            if (createdAt2 == null) return -1;
+            if (createdAt1 == null && createdAt2 == null)
+                return 0;
+            if (createdAt1 == null)
+                return 1;
+            if (createdAt2 == null)
+                return -1;
             return createdAt2.compareTo(createdAt1);
         });
 
@@ -114,8 +116,8 @@ public class DashboardController {
         return "dashboard";
     }
 
-        @PostMapping("/income/add")
-        public String addIncome(@RequestParam Double amount,
+    @PostMapping("/income/add")
+    public String addIncome(@RequestParam Double amount,
             @RequestParam Long categoryId,
             @RequestParam LocalDate date,
             @RequestParam(required = false) String notes,
@@ -134,7 +136,11 @@ public class DashboardController {
             income.setUser(user);
             incomeService.addIncome(income);
             redirectAttributes.addFlashAttribute("success", "Income added successfully!");
+        } catch (InvalidTransactionException e) {
+            // Handle validation errors
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
         } catch (Exception e) {
+            // Handle unexpected errors
             redirectAttributes.addFlashAttribute("error", "Failed to add income: " + e.getMessage());
         }
         return "redirect:/";
@@ -160,7 +166,11 @@ public class DashboardController {
             expense.setUser(user);
             expenseService.addExpense(expense);
             redirectAttributes.addFlashAttribute("success", "Expense added successfully!");
+        } catch (InvalidTransactionException e) {
+            // Handle validation errors
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
         } catch (Exception e) {
+            // Handle unexpected errors
             redirectAttributes.addFlashAttribute("error", "Failed to add expense: " + e.getMessage());
         }
         return "redirect:/";
@@ -176,7 +186,8 @@ public class DashboardController {
     }
 
     @PostMapping("/categories/add")
-    public String addCategory(@RequestParam String name, @RequestParam String type, RedirectAttributes redirectAttributes) {
+    public String addCategory(@RequestParam String name, @RequestParam String type,
+            RedirectAttributes redirectAttributes) {
         try {
             CategoryRequestDTO dto = new CategoryRequestDTO();
             dto.setName(name);
@@ -192,7 +203,8 @@ public class DashboardController {
     }
 
     @PostMapping("/category/update")
-    public String updateCategory(@RequestParam Long id, @RequestParam String name, @RequestParam String type, RedirectAttributes redirectAttributes) {
+    public String updateCategory(@RequestParam Long id, @RequestParam String name, @RequestParam String type,
+            RedirectAttributes redirectAttributes) {
         try {
             CategoryRequestDTO dto = new CategoryRequestDTO();
             dto.setName(name);
@@ -255,9 +267,12 @@ public class DashboardController {
         transactions.sort((t1, t2) -> {
             LocalDate date1 = (LocalDate) t1.get("date");
             LocalDate date2 = (LocalDate) t2.get("date");
-            if (date1 == null && date2 == null) return 0;
-            if (date1 == null) return 1;
-            if (date2 == null) return -1;
+            if (date1 == null && date2 == null)
+                return 0;
+            if (date1 == null)
+                return 1;
+            if (date2 == null)
+                return -1;
             return date2.compareTo(date1);
         });
         model.addAttribute("transactions", transactions);
