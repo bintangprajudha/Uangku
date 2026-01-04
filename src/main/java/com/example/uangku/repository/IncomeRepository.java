@@ -12,4 +12,6 @@ public interface IncomeRepository extends JpaRepository<Income, Long> {
 
     // raska added
     List<Income> findByUserId(Long userId);
+
+    boolean existsByCategory_Id(Long categoryId);
 }

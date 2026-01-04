@@ -12,4 +12,6 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
     // raska added
     List<Expense> findByUserId(Long userId);
+
+    boolean existsByCategory_Id(Long categoryId);
 }
