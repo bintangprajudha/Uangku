@@ -7,147 +7,190 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.example.uangku.model.Category;
-import com.example.uangku.model.Transaction;
-import com.example.uangku.model.TransactionType;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
+import com.example.uangku.model.Transaction;
+import com.example.uangku.model.User;
+
+@Service
 public class HistoryManager {
 
-    private TransactionManager transactionManager;
+    // Private attributes (Encapsulation)
+    private TransactionManagerService transactionManagerService;
     private int pageSize;
 
-    public HistoryManager(TransactionManager transactionManager, int pageSize) {
-        this.transactionManager = transactionManager;
+    // Constructor (Class Relationship - Association)
+    public HistoryManager(TransactionManagerService transactionManagerService, @Value("${history.page.size:10}") int pageSize) {
+        this.transactionManagerService = transactionManagerService;
         this.pageSize = pageSize;
     }
 
+    // Public methods
+
+    /**
+     * Get paginated history with filters
+     * @param page Page number (starting from 1)
+     * @param filters Map of filters (type, categoryId, startDate, endDate, user)
+     * @return Object containing paginated results
+     */
     public Object getHistory(int page, Map<String, Object> filters) {
-        List<Transaction> filtered = getFilteredHistory(filters);
-        int total = filtered.size();
-        int start = page * pageSize;
-        int end = Math.min(start + pageSize, total);
-        List<Transaction> pageData = filtered.subList(start, end);
+        try {
+            List<Transaction> allTransactions = getFilteredHistory(filters);
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("transactions", pageData);
-        result.put("currentPage", page);
-        result.put("totalPages", (int) Math.ceil((double) total / pageSize));
-        result.put("totalItems", total);
-        result.put("pageSize", pageSize);
+            // Calculate pagination
+            int totalItems = allTransactions.size();
+            int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+            int startIndex = (page - 1) * pageSize;
+            int endIndex = Math.min(startIndex + pageSize, totalItems);
 
-        return result;
+            List<Transaction> pageTransactions = allTransactions.subList(startIndex, endIndex);
+
+            // Return paginated result as Map (could be converted to DTO)
+            Map<String, Object> result = new HashMap<>();
+            result.put("transactions", pageTransactions);
+            result.put("currentPage", page);
+            result.put("totalPages", totalPages);
+            result.put("totalItems", totalItems);
+            result.put("pageSize", pageSize);
+
+            return result;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error retrieving history: " + e.getMessage());
+        }
     }
 
+    /**
+     * Get filtered history without pagination
+     * @param filters Map of filters
+     * @return List of filtered transactions
+     */
     public List<Transaction> getFilteredHistory(Map<String, Object> filters) {
-        List<Transaction> transactions = transactionManager.getAllTransactions();
-
-        if (filters != null) {
-            // Filter by date range
-            if (filters.containsKey("startDate") && filters.containsKey("endDate")) {
-                LocalDate startDate = (LocalDate) filters.get("startDate");
-                LocalDate endDate = (LocalDate) filters.get("endDate");
-                transactions = transactionManager.filterByDate(startDate, endDate);
+        try {
+            User user = (User) filters.get("user");
+            if (user == null) {
+                throw new IllegalArgumentException("User is required for filtering");
             }
 
-            // Filter by category
-            if (filters.containsKey("category")) {
-                Category category = (Category) filters.get("category");
-                transactions = transactionManager.filterByCategory(category);
+            List<Transaction> transactions = transactionManagerService.getAllTransactionsByUser(user);
+
+            // Apply filters using polymorphism (TransactionManagerService implements IFilterable)
+            String type = (String) filters.get("type");
+            if (type != null) {
+                transactions = transactionManagerService.filterByType(transactions, type);
             }
 
-            // Filter by type
-            if (filters.containsKey("type")) {
-                TransactionType type = (TransactionType) filters.get("type");
-                transactions = transactionManager.filterByType(type);
+            Long categoryId = (Long) filters.get("categoryId");
+            if (categoryId != null) {
+                transactions = transactionManagerService.filterByCategory(transactions, categoryId);
             }
 
-            // Search by keyword
-            if (filters.containsKey("keyword")) {
-                String keyword = (String) filters.get("keyword");
-                transactions = transactionManager.search(keyword);
+            LocalDate startDate = (LocalDate) filters.get("startDate");
+            LocalDate endDate = (LocalDate) filters.get("endDate");
+            if (startDate != null && endDate != null) {
+                transactions = transactionManagerService.filterByDateRange(transactions, startDate, endDate);
             }
+
+            return transactions;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error filtering history: " + e.getMessage());
         }
-
-        return transactions;
     }
 
+    /**
+     * Sort transactions by specified field and order
+     * @param transactions List to sort
+     * @param sortBy Field to sort by ("date" or "amount")
+     * @param order Sort order ("asc" or "desc")
+     * @return Sorted list
+     */
     public List<Transaction> sortHistory(List<Transaction> transactions, String sortBy, String order) {
-        Comparator<Transaction> comparator;
+        try {
+            Comparator<Transaction> comparator;
 
-        switch (sortBy.toLowerCase()) {
-            case "date":
-                comparator = Comparator.comparing(Transaction::getDate);
-                break;
-            case "amount":
-                comparator = Comparator.comparing(Transaction::getAmount);
-                break;
-            case "type":
-                comparator = Comparator.comparing(Transaction::getType);
-                break;
-            default:
-                comparator = Comparator.comparing(Transaction::getDate);
+            switch (sortBy.toLowerCase()) {
+                case "date":
+                    comparator = Comparator.comparing(Transaction::getDate);
+                    break;
+                case "amount":
+                    comparator = Comparator.comparing(Transaction::getAmount);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid sortBy field: " + sortBy);
+            }
+
+            if ("desc".equalsIgnoreCase(order)) {
+                comparator = comparator.reversed();
+            }
+
+            return transactions.stream()
+                    .sorted(comparator)
+                    .collect(Collectors.toList());
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error sorting history: " + e.getMessage());
         }
-
-        if ("desc".equalsIgnoreCase(order)) {
-            comparator = comparator.reversed();
-        }
-
-        return transactions.stream()
-                .sorted(comparator)
-                .collect(Collectors.toList());
     }
 
+    /**
+     * Export history to specified format
+     * @param format Export format ("json" or "csv")
+     * @return Exported data as string
+     */
     public String exportHistory(String format) {
-        List<Transaction> transactions = transactionManager.getAllTransactions();
+        try {
+            // For demonstration, we'll export all transactions
+            // In real implementation, this might take filters as parameter
+            List<Transaction> transactions = transactionManagerService.getAllTransactions();
 
-        switch (format.toLowerCase()) {
-            case "csv":
-                return exportToCSV(transactions);
-            case "json":
-                return exportToJSON(transactions);
-            default:
-                return "Unsupported format";
+            switch (format.toLowerCase()) {
+                case "json":
+                    return exportToJson(transactions);
+                case "csv":
+                    return exportToCsv(transactions);
+                default:
+                    throw new IllegalArgumentException("Unsupported format: " + format);
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error exporting history: " + e.getMessage());
         }
     }
 
-    private String exportToCSV(List<Transaction> transactions) {
-        StringBuilder csv = new StringBuilder();
-        csv.append("ID,Amount,Category,Date,Notes,Type\n");
-
-        for (Transaction t : transactions) {
-            csv.append(t.getId()).append(",")
-               .append(t.getAmount()).append(",")
-               .append(t.getCategory() != null ? t.getCategory().getName() : "").append(",")
-               .append(t.getDate()).append(",")
-               .append(t.getNotes() != null ? t.getNotes() : "").append(",")
-               .append(t.getType()).append("\n");
-        }
-
-        return csv.toString();
-    }
-
-    private String exportToJSON(List<Transaction> transactions) {
+    // Private helper methods for export (Polymorphism - different export formats)
+    private String exportToJson(List<Transaction> transactions) {
         StringBuilder json = new StringBuilder();
         json.append("[\n");
-
         for (int i = 0; i < transactions.size(); i++) {
             Transaction t = transactions.get(i);
-            json.append("  {\n")
-                .append("    \"id\": ").append(t.getId()).append(",\n")
-                .append("    \"amount\": ").append(t.getAmount()).append(",\n")
-                .append("    \"category\": \"").append(t.getCategory() != null ? t.getCategory().getName() : "").append("\",\n")
-                .append("    \"date\": \"").append(t.getDate()).append("\",\n")
-                .append("    \"notes\": \"").append(t.getNotes() != null ? t.getNotes() : "").append("\",\n")
-                .append("    \"type\": \"").append(t.getType()).append("\"\n")
-                .append("  }");
-
+            json.append("  {\n");
+            json.append("    \"id\": ").append(t.getId()).append(",\n");
+            json.append("    \"type\": \"").append(t.getType()).append("\",\n");
+            json.append("    \"amount\": ").append(t.getAmount()).append(",\n");
+            json.append("    \"date\": \"").append(t.getDate()).append("\",\n");
+            json.append("    \"notes\": \"").append(t.getNotes() != null ? t.getNotes() : "").append("\"\n");
+            json.append("  }");
             if (i < transactions.size() - 1) {
                 json.append(",");
             }
             json.append("\n");
         }
-
         json.append("]");
         return json.toString();
+    }
+
+    private String exportToCsv(List<Transaction> transactions) {
+        StringBuilder csv = new StringBuilder();
+        csv.append("ID,Type,Amount,Date,Notes\n");
+        for (Transaction t : transactions) {
+            csv.append(t.getId()).append(",");
+            csv.append(t.getType()).append(",");
+            csv.append(t.getAmount()).append(",");
+            csv.append(t.getDate()).append(",");
+            csv.append("\"").append(t.getNotes() != null ? t.getNotes().replace("\"", "\"\"") : "").append("\"\n");
+        }
+        return csv.toString();
     }
 }
