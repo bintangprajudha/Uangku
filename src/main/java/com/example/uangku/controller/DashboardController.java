@@ -25,8 +25,7 @@ import com.example.uangku.service.Dashboard;
 import com.example.uangku.service.ExpenseService;
 import com.example.uangku.service.IncomeService;
 import com.example.uangku.service.QuickStatsService;
-import com.example.uangku.service.ReportGenerator;
-import com.example.uangku.service.StatisticCalculatorService;
+
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -39,8 +38,7 @@ public class DashboardController {
     private final CategoryService categoryService;
     private final IncomeService incomeService;
     private final ExpenseService expenseService;
-    private final StatisticCalculatorService statisticCalculatorService;
-    private final ReportGenerator reportGenerator;
+
     // raska added
     private final QuickStatsService quickStatsService;
     // raska added end
@@ -312,20 +310,5 @@ public class DashboardController {
         return "redirect:/transactions";
     }
 
-    @GetMapping("/reports")
-    public String reports(Model model, HttpSession session) {
-        com.example.uangku.model.User user = (com.example.uangku.model.User) session.getAttribute("user");
-        if (user == null)
-            return "redirect:/auth/login";
 
-        // Generate current month report
-        com.example.uangku.model.Report currentReport = reportGenerator.generateMonthlyReport(user, java.time.LocalDate.now().getYear(), java.time.LocalDate.now().getMonthValue());
-        model.addAttribute("report", currentReport);
-
-        // Get monthly summaries for the last 12 months for income vs expense chart
-        List<Map<String, Object>> monthlySummaries = statisticCalculatorService.getMonthlySummaries(user);
-        model.addAttribute("monthlySummaries", monthlySummaries);
-
-        return "reports";
-    }
 }
