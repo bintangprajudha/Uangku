@@ -2,7 +2,6 @@ package com.example.uangku.service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class TransactionManagerService {
+public class TransactionManagerService implements IFilterable {
 
     private final IncomeService incomeService;
     private final ExpenseService expenseService;
@@ -60,45 +59,37 @@ public class TransactionManagerService {
                 .sum();
     }
 
-    public List<Transaction> searchAndFilterTransactions(User user, String searchTerm, 
-            String type, Long categoryId, LocalDate startDate, LocalDate endDate) {
-        List<Transaction> transactions = getAllTransactionsByUser(user);
-
-        // Filter by date range
-        if (startDate != null && endDate != null) {
-            transactions = transactions.stream()
-                    .filter(t -> !t.getDate().isBefore(startDate) && !t.getDate().isAfter(endDate))
-                    .collect(Collectors.toList());
+    @Override
+    public List<Transaction> filterByType(List<Transaction> transactions, String type) {
+        if (type == null || type.isEmpty() || type.equals("All")) {
+            return transactions;
         }
 
-        // Filter by type (Income/Expense)
-        if (type != null && !type.isEmpty() && !type.equals("All")) {
-            transactions = transactions.stream()
-                    .filter(t -> t.getType().equalsIgnoreCase(type))
-                    .collect(Collectors.toList());
+        return transactions.stream()
+                .filter(t -> t.getType().equalsIgnoreCase(type))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Transaction> filterByCategory(List<Transaction> transactions, Long categoryId) {
+        if (categoryId == null || categoryId <= 0) {
+            return transactions;
         }
 
-        // Filter by category
-        if (categoryId != null && categoryId > 0) {
-            transactions = transactions.stream()
-                    .filter(t -> t.getCategory() != null && t.getCategory().getId().equals(categoryId))
-                    .collect(Collectors.toList());
+        return transactions.stream()
+                .filter(t -> t.getCategory() != null && t.getCategory().getId().equals(categoryId))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Transaction> filterByDateRange(List<Transaction> transactions, 
+            LocalDate startDate, LocalDate endDate) {
+        if (startDate == null || endDate == null) {
+            return transactions;
         }
 
-        // Search by notes or category name
-        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
-            String search = searchTerm.toLowerCase().trim();
-            transactions = transactions.stream()
-                    .filter(t -> 
-                        (t.getNotes() != null && t.getNotes().toLowerCase().contains(search)) ||
-                        (t.getCategory() != null && t.getCategory().getName().toLowerCase().contains(search))
-                    )
-                    .collect(Collectors.toList());
-        }
-
-        // Sort by date descending (newest first)
-        transactions.sort(Comparator.comparing(Transaction::getDate).reversed());
-
-        return transactions;
+        return transactions.stream()
+                .filter(t -> !t.getDate().isBefore(startDate) && !t.getDate().isAfter(endDate))
+                .collect(Collectors.toList());
     }
 }
