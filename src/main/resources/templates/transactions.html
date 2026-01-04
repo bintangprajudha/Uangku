@@ -238,6 +238,34 @@
                      th:value="${endDate}">
             </div>
 
+             <!-- Min Amount -->
+                  <div class="col-md-2">
+                    <label class="form-label">Min Amount</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      name="minAmount"
+                      placeholder="0"
+                      step="0.01"
+                      min="0"
+                      th:value="${minAmount}"
+                    />
+                  </div>
+
+            <!-- Max Amount -->
+            <div class="col-md-2">
+                    <label class="form-label">Max Amount</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      name="maxAmount"
+                      placeholder="1000000"
+                      step="0.01"
+                      min="0"
+                      th:value="${maxAmount}"
+                    />
+                  </div>
+
             <!-- Buttons -->
             <div class="col-md-1 d-flex align-items-end">
               <button type="submit" class="btn btn-primary w-100 mb-0">
