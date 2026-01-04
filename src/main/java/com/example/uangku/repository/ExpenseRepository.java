@@ -9,4 +9,6 @@ import com.example.uangku.model.User;
 
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     List<Expense> findByUser(User user);
+    
+    boolean existsByCategory_Id(Long categoryId);
 }

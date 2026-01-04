@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import com.example.uangku.dto.CategoryRequestDTO;
 import com.example.uangku.model.Category;
 import com.example.uangku.repository.CategoryRepository;
+import com.example.uangku.repository.ExpenseRepository;
+import com.example.uangku.repository.IncomeRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 public class CategoryService {
 
     private final CategoryRepository categoryRepo;
+    private final ExpenseRepository expenseRepo;
+    private final IncomeRepository incomeRepo;
 
     // addCategory 
     public Category addCategory(CategoryRequestDTO dto) {
@@ -75,6 +79,10 @@ public class CategoryService {
     // deleteCategory 
     public boolean deleteCategory(Long id) {
         if (!categoryRepo.existsById(id)) return false;
+        // jika ada expense atau income yang merujuk ke kategori ini, tolak penghapusan
+        if (expenseRepo.existsByCategory_Id(id) || incomeRepo.existsByCategory_Id(id)) {
+            throw new IllegalStateException("Cannot delete category: it is referenced by existing transactions");
+        }
         categoryRepo.deleteById(id);
         return true;
     }
