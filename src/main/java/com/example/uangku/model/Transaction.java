@@ -58,6 +58,6 @@ public abstract class Transaction {
     public abstract String getType();
 
     public double getAmount() {
-        return amount != null ? amount : 0.0;
+        return amount;
     }
 }
