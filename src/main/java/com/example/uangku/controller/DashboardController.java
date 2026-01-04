@@ -25,6 +25,7 @@ import com.example.uangku.service.Dashboard;
 import com.example.uangku.service.ExpenseService;
 import com.example.uangku.service.IncomeService;
 import com.example.uangku.service.QuickStatsService;
+import com.example.uangku.service.ReportGenerator;
 import com.example.uangku.service.StatisticCalculatorService;
 
 import jakarta.servlet.http.HttpSession;
@@ -39,6 +40,7 @@ public class DashboardController {
     private final IncomeService incomeService;
     private final ExpenseService expenseService;
     private final StatisticCalculatorService statisticCalculatorService;
+    private final ReportGenerator reportGenerator;
     // raska added
     private final QuickStatsService quickStatsService;
     // raska added end
@@ -316,7 +318,11 @@ public class DashboardController {
         if (user == null)
             return "redirect:/auth/login";
 
-        // Get monthly summaries for the last 12 months
+        // Generate current month report
+        com.example.uangku.model.Report currentReport = reportGenerator.generateMonthlyReport(user, java.time.LocalDate.now().getYear(), java.time.LocalDate.now().getMonthValue());
+        model.addAttribute("report", currentReport);
+
+        // Get monthly summaries for the last 12 months for income vs expense chart
         List<Map<String, Object>> monthlySummaries = statisticCalculatorService.getMonthlySummaries(user);
         model.addAttribute("monthlySummaries", monthlySummaries);
 
