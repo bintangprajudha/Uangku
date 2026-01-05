@@ -33,7 +33,6 @@ public class TransactionManagerService implements IFilterable {
         this.transactions = new ArrayList<>();
     }
 
-    // Static method for validation (Static dan Collection)
     public static boolean isValidTransaction(Transaction t) {
         return t != null && t.getAmount() > 0 && t.getDate() != null;
     }
@@ -112,7 +111,6 @@ public class TransactionManagerService implements IFilterable {
                 .collect(Collectors.toList());
     }
 
-    // Overloaded method for polymorphism (Polymorphism)
     public List<Transaction> filterByDateRange(List<Transaction> transactions, LocalDate startDate) {
         return filterByDateRange(transactions, startDate, LocalDate.now());
     }

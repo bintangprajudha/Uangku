@@ -16,29 +16,20 @@ import com.example.uangku.model.User;
 @Service
 public class HistoryManager {
 
-    // Private attributes (Encapsulation)
     private TransactionManagerService transactionManagerService;
     private int pageSize;
 
-    // Constructor (Class Relationship - Association)
     public HistoryManager(TransactionManagerService transactionManagerService, @Value("${history.page.size:10}") int pageSize) {
         this.transactionManagerService = transactionManagerService;
         this.pageSize = pageSize;
     }
 
-    // Public methods
+ 
 
-    /**
-     * Get paginated history with filters
-     * @param page Page number (starting from 1)
-     * @param filters Map of filters (type, categoryId, startDate, endDate, user)
-     * @return Object containing paginated results
-     */
     public Object getHistory(int page, Map<String, Object> filters) {
         try {
             List<Transaction> allTransactions = getFilteredHistory(filters);
 
-            // Calculate pagination
             int totalItems = allTransactions.size();
             int totalPages = (int) Math.ceil((double) totalItems / pageSize);
             int startIndex = (page - 1) * pageSize;
@@ -46,7 +37,6 @@ public class HistoryManager {
 
             List<Transaction> pageTransactions = allTransactions.subList(startIndex, endIndex);
 
-            // Return paginated result as Map (could be converted to DTO)
             Map<String, Object> result = new HashMap<>();
             result.put("transactions", pageTransactions);
             result.put("currentPage", page);
@@ -61,11 +51,7 @@ public class HistoryManager {
         }
     }
 
-    /**
-     * Get filtered history without pagination
-     * @param filters Map of filters
-     * @return List of filtered transactions
-     */
+  
     public List<Transaction> getFilteredHistory(Map<String, Object> filters) {
         try {
             User user = (User) filters.get("user");
@@ -75,7 +61,7 @@ public class HistoryManager {
 
             List<Transaction> transactions = transactionManagerService.getAllTransactionsByUser(user);
 
-            // Apply filters using polymorphism (TransactionManagerService implements IFilterable)
+
             String type = (String) filters.get("type");
             if (type != null) {
                 transactions = transactionManagerService.filterByType(transactions, type);
@@ -99,13 +85,7 @@ public class HistoryManager {
         }
     }
 
-    /**
-     * Sort transactions by specified field and order
-     * @param transactions List to sort
-     * @param sortBy Field to sort by ("date" or "amount")
-     * @param order Sort order ("asc" or "desc")
-     * @return Sorted list
-     */
+ 
     public List<Transaction> sortHistory(List<Transaction> transactions, String sortBy, String order) {
         try {
             Comparator<Transaction> comparator;
@@ -134,15 +114,9 @@ public class HistoryManager {
         }
     }
 
-    /**
-     * Export history to specified format
-     * @param format Export format ("json" or "csv")
-     * @return Exported data as string
-     */
     public String exportHistory(String format) {
         try {
-            // For demonstration, we'll export all transactions
-            // In real implementation, this might take filters as parameter
+
             List<Transaction> transactions = transactionManagerService.getAllTransactions();
 
             switch (format.toLowerCase()) {
@@ -159,7 +133,6 @@ public class HistoryManager {
         }
     }
 
-    // Private helper methods for export (Polymorphism - different export formats)
     private String exportToJson(List<Transaction> transactions) {
         StringBuilder json = new StringBuilder();
         json.append("[\n");
