@@ -56,8 +56,4 @@ public abstract class Transaction {
     }
 
     public abstract String getType();
-
-    public double getAmount() {
-        return amount;
-    }
 }
